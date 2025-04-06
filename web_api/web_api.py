@@ -6,16 +6,32 @@ import uvicorn
 import threading
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import String
+# from std_msgs.msg import String
+from geometry_msgs.msg import Point
 
 class ROS2BridgeNode(Node):
     def __init__(self):
         super().__init__('ros2_web_bridge')
-        self.publisher = self.create_publisher(String, '/game_command', 10)
+
+        # Parameters
+        self.declare_parameter('coord_topic_start','/coord/start')
+        self.declare_parameter('coord_topic_goal','/coord/goal')
+        self.declare_parameter('host','mcalec.dyn.wpi.edu')
+        self.declare_parameter('port',8000)
+
+        # Publishers
+        self.coord_start_publisher = self.create_publisher(Point,self.get_parameter('coord_topic_start').value,10)
+        self.coord_goal_publisher = self.create_publisher(Point,self.get_parameter('coord_topic_goal').value,10)
+
+        # WebSocket
+        self.host = self.get_parameter('host').value
+        self.port = self.get_parameter('port').value
+
         self.get_logger().info("ROS2 Web Bridge initialized")
 
+
     def send_command(self, command: str):
-        msg = String()
+        msg = Point()
         msg.data = command
         self.publisher.publish(msg)
         self.get_logger().info(f"Sent command to ROS2: {command}")
@@ -100,6 +116,8 @@ class WebAPIServer:
         return True  # Simulate success
     
     def run(self, host="mcalec.dyn.wpi.edu", port=8000):
+        host = self.ros_node.host if not None else host
+        port = self.ros_node.port if not None else port
         uvicorn.run(self.app, host=host, port=port)
 
 def main(args=None):

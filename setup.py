@@ -11,7 +11,7 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
     ],
-    install_requires=['setuptools', 'fastapi','uvicorn', 'websockets',],
+    install_requires=['setuptools', 'fastapi','uvicorn', 'websockets'],
     zip_safe=True,
     maintainer='mcalec',
     maintainer_email='mcalec9999@gmail.com',
